@@ -1,0 +1,21 @@
+---
+
+- hosts: lin
+  remote_user: root
+
+  tasks:
+  - name: unregister key
+    shell: rpm -e --allmatches gpg-pubkey-a14fe591-578876fd
+    when: ansible_distribution == 'CentOS'
+    register: result
+
+  - name: copy key
+    copy:
+      src: /tmp/RPM-GPG-KEY-ZABBIX
+      dest: /tmp/RPM-GPG-KEY-ZABBIX
+      register: cp
+      when: result|succeeded
+
+  - name: unregister key
+    shell: rpm --import /tmp/RPM-GPG-KEY-ZABBIX
+    when: cp|succeeded
